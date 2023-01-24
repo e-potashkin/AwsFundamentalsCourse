@@ -1,6 +1,6 @@
-namespace SqsConsumer;
+﻿namespace Customers.Api.Contracts.Requests;
 
-public class CustomerCreated
+public class CustomerRequest
 {
     public string GitHubUsername { get; init; } = default!;
 
