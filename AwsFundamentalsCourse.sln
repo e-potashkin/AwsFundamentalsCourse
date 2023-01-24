@@ -1,8 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+#
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sqs", "Sqs", "{847E1D67-5450-473F-9719-BA739C37685E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqsPublisher", "SqsPublisher\SqsPublisher.csproj", "{058717AD-BBEF-4C1F-9698-65D1D06BEB74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqsConsumer", "SqsConsumer\SqsConsumer.csproj", "{AC51AAA6-01FB-4828-964B-5D103149D513}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,8 +17,13 @@ Global
 		{058717AD-BBEF-4C1F-9698-65D1D06BEB74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{058717AD-BBEF-4C1F-9698-65D1D06BEB74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{058717AD-BBEF-4C1F-9698-65D1D06BEB74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC51AAA6-01FB-4828-964B-5D103149D513}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC51AAA6-01FB-4828-964B-5D103149D513}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC51AAA6-01FB-4828-964B-5D103149D513}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC51AAA6-01FB-4828-964B-5D103149D513}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{058717AD-BBEF-4C1F-9698-65D1D06BEB74} = {847E1D67-5450-473F-9719-BA739C37685E}
+		{AC51AAA6-01FB-4828-964B-5D103149D513} = {847E1D67-5450-473F-9719-BA739C37685E}
 	EndGlobalSection
 EndGlobal
