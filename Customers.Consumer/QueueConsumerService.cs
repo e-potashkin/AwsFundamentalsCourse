@@ -1,23 +1,34 @@
 using System.Text.Json;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Customers.Consumer;
+using Customers.Consumer.Messages;
+using MediatR;
 using Microsoft.Extensions.Options;
+
+namespace Customers.Consumer;
 
 public class QueueConsumerService : BackgroundService
 {
     private readonly IAmazonSQS _sqs;
     private readonly IOptions<QueueSettings> _queueSettings;
+    private readonly ISender _sender;
+    private readonly ILogger<QueueConsumerService> _logger;
 
-    public QueueConsumerService(IAmazonSQS sqs, IOptions<QueueSettings> queueSettings)
+    public QueueConsumerService(
+        IAmazonSQS sqs,
+        IOptions<QueueSettings> queueSettings,
+        ISender sender,
+        ILogger<QueueConsumerService> logger)
     {
         _sqs = sqs;
         _queueSettings = queueSettings;
+        _sender = sender;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var queueUrlResponse = await _sqs.GetQueueUrlAsync("customers", stoppingToken);
+        var queueUrlResponse = await _sqs.GetQueueUrlAsync(_queueSettings.Value.Name, stoppingToken);
         var receiveMessageRequest = new ReceiveMessageRequest
         {
             QueueUrl = queueUrlResponse.QueueUrl,
@@ -33,18 +44,27 @@ public class QueueConsumerService : BackgroundService
             foreach (var message in response.Messages)
             {
                 var messageType = message.MessageAttributes["MessageType"].StringValue;
-                switch (messageType)
+                var type = Type.GetType($"Customers.Consumer.Messages.{messageType}");
+
+                if (type is null)
                 {
-                    case nameof(CustomerCreated):
-                        var created = JsonSerializer.Deserialize<CustomerCreated>(message.Body);
-                        break;
-                    case nameof(CustomerUpdated):
-                        break;
-                    case nameof(CustomerDeleted):
-                        break;
-                } 
-                
-                await _sqs.DeleteMessageAsync(queueUrlResponse. QueueUrl, message. ReceiptHandle, stoppingToken);
+                    _logger.LogWarning("Unknown message type: {MessageType}", messageType);
+                    continue;
+                }
+
+                var typedMessage = (ISqsMessage)JsonSerializer.Deserialize(message.Body, type)!;
+
+                try 
+                {
+                    await _sender.Send(typedMessage, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Message failed during processing");
+                    continue;
+                }
+
+                await _sqs.DeleteMessageAsync(queueUrlResponse.QueueUrl, message.ReceiptHandle, stoppingToken);
             }
 
             await Task.Delay(1000, stoppingToken);
